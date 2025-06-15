@@ -1,0 +1,211 @@
+# Modo de balanceamento 1
+#Minimização do tempo de ciclo com número definido de operadores
+
+import pulp
+
+tasks = {
+    0: {'tempo': 3.04, 'execução': [1], 'restricao_ws': [0], 'antecessores': []},
+    1: {'tempo': 10.45, 'execução': [1], 'restricao_ws': [], 'antecessores': [0]},
+    2: {'tempo': 6.38, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [1]},
+    3: {'tempo': 11.5, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [2]},
+    4: {'tempo': 11.5, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [3]},
+    5: {'tempo': 13.68, 'execução': [1], 'restricao_ws': [], 'antecessores': [4]},
+    6: {'tempo': 7.98, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [5]},
+    7: {'tempo': 7.79, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [6]},
+    8: {'tempo': 4.0, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [7]},
+    9: {'tempo': 20.85, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [8]},
+    10: {'tempo': 15.01, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [9]},
+    11: {'tempo': 14.44, 'execução': [1], 'restricao_ws': [], 'antecessores': [10]},
+    12: {'tempo': 14.63, 'execução': [1], 'restricao_ws': [], 'antecessores': [11]},
+    13: {'tempo': 15.96, 'execução': [1], 'restricao_ws': [], 'antecessores': [12]},
+    14: {'tempo': 11.7, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [13]},
+    15: {'tempo': 3.42, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [13]},
+    16: {'tempo': 6.46, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [14,15]},
+    17: {'tempo': 8.93, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [16]},
+    18: {'tempo': 8.93, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [17]},
+    19: {'tempo': 9.12, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [18]},
+    20: {'tempo': 4.56, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [19]},
+    21: {'tempo': 15.6, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [20]},
+    22: {'tempo': 2.28, 'execução': [1], 'restricao_ws': [], 'antecessores': [21]},
+    23: {'tempo': 7.41, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [21]},
+    24: {'tempo': 6.27, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [22,23]},
+    25: {'tempo': 11.78, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [24]},
+    26: {'tempo': 9.42, 'execução': [1], 'restricao_ws': [], 'antecessores': [25]},
+    27: {'tempo': 15.96, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [26]},
+    28: {'tempo': 15.96, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [27]},
+    29: {'tempo': 9.5, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [28]},
+    30: {'tempo': 12.16, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [29]},
+    31: {'tempo': 12.16, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [30]},
+    32: {'tempo': 19.38, 'execução': [1], 'restricao_ws': [], 'antecessores': [30]},
+    33: {'tempo': 11.97, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [31,32]},
+    34: {'tempo': 11.97, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [33]},
+    35: {'tempo': 11.21, 'execução': [1], 'restricao_ws': [], 'antecessores': [34]},
+    36: {'tempo': 20.24, 'execução': [1,2], 'restricao_ws': [], 'antecessores': [35]},
+    37: {'tempo': 15.24, 'execução': [1,2], 'restricao_ws': [], 'antecessores': [36]},
+    38: {'tempo': 13.24, 'execução': [2], 'restricao_ws': [], 'antecessores': [37]},
+    39: {'tempo': 8.24, 'execução': [1,2], 'restricao_ws': [11], 'antecessores': [38]},
+    40: {'tempo': 5.24, 'execução': [1], 'restricao_ws': [12], 'antecessores': [39]},
+}
+
+# Workstations
+workstations = {
+    0: {'lados_possiveis': [1]},
+    1: {'lados_possiveis': [1]},
+    2: {'lados_possiveis': [1, 2]},
+    3: {'lados_possiveis': [1, 2]},
+    4: {'lados_possiveis': [1]},
+    5: {'lados_possiveis': [1]},
+    6: {'lados_possiveis': [1, 2]},
+    7: {'lados_possiveis': [1, 2]},
+    8: {'lados_possiveis': [1, 2]},
+    9: {'lados_possiveis': [2]},
+    10: {'lados_possiveis': [1, 2]},
+    11: {'lados_possiveis': [1, 2]},
+    12: {'lados_possiveis': [1,2]}
+}
+
+num_operadores = 13
+
+# Variável de decisão: alocação de tarefas para workstations e lados
+prob = pulp.LpProblem("Two-Sided_Assembly_Line_Balancing", pulp.LpMinimize)
+
+# Variável de decisão x_t_w_l: se a tarefa t está atribuída à estação de trabalho w no lado l
+x = pulp.LpVariable.dicts("x", ((t, w, l) for t in tasks for w in workstations for l in
+                                workstations[w]['lados_possiveis']), 0, 1, pulp.LpBinary)
+
+# Variável de decisão para identificar se uma linha (lado) de uma estação é usada
+y = pulp.LpVariable.dicts("y", ((w, l) for w in workstations for l in workstations[w]['lados_possiveis']), 0, 1,
+                          pulp.LpBinary)
+
+# Adicionar variável para tempo de ciclo
+C = pulp.LpVariable("CycleTime", lowBound=0, cat='Continuous')
+
+# Variável auxiliar para diferença em relação ao tempo médio (para balanceamento)
+# Tempo médio por operador = soma_total_tempos / num_operadores
+soma_total_tempos = sum(tasks[t]['tempo'] for t in tasks)
+tempo_medio = soma_total_tempos / num_operadores
+
+# Variáveis para diferença positiva e negativa em relação à média
+d_plus = pulp.LpVariable.dicts("d_plus", (w for w in workstations), 0)
+d_minus = pulp.LpVariable.dicts("d_minus", (w for w in workstations), 0)
+
+# Restrições para calcular as diferenças
+for w in workstations:
+    prob += pulp.lpSum(tasks[t]['tempo'] * x[t, w, l]
+                       for t in tasks for l in workstations[w]['lados_possiveis']) - tempo_medio == d_plus[w] - \
+            d_minus[w]
+# Adicionar pesos para a função objetivo
+peso_tempo_ciclo = 1.0  # Peso para minimizar o tempo de ciclo
+peso_balanceamento = 0.1  # Peso para balancear a carga de trabalho
+
+# Restrições
+
+# 1. Garantir que se y[w,l] = 1, então alguma tarefa está realmente alocada
+for w in workstations:
+    for l in workstations[w]['lados_possiveis']:
+        prob += pulp.lpSum(x[t, w, l] for t in tasks) >= y[w, l]
+
+# 2. Se uma tarefa for alocada a (w, l), então y[w, l] = 1
+for w in workstations:
+    for l in workstations[w]['lados_possiveis']:
+        for t in tasks:
+            prob += x[t, w, l] <= y[w, l]
+
+# 3. Cada tarefa deve ser alocada a exatamente uma estação de trabalho e um lado
+for t in tasks:
+    prob += pulp.lpSum(x[t, w, l] for w in workstations for l in workstations[w]['lados_possiveis']) == 1
+
+# 4. O tempo total em cada workstation/lado não pode exceder o tempo de ciclo
+for w in workstations:
+    for l in workstations[w]['lados_possiveis']:
+        prob += pulp.lpSum(tasks[t]['tempo'] * x[t, w, l] for t in tasks) <= C
+
+# 5. O número total de workstations/lados utilizados deve ser igual ao número de operadores
+prob += pulp.lpSum(y[w, l] for w in workstations for l in workstations[w]['lados_possiveis']) == num_operadores
+
+# 6. Restrições de workstations para tarefas
+for t in tasks:
+    if tasks[t]['restricao_ws']:
+        prob += pulp.lpSum(
+            x[t, w, l] for w in tasks[t]['restricao_ws'] for l in workstations[w]['lados_possiveis']) == 1
+    else:
+        prob += pulp.lpSum(x[t, w, l] for w in workstations for l in workstations[w]['lados_possiveis']) == 1
+
+# 7. Restrições de execução (lado) para tarefas
+for t in tasks:
+    for w in workstations:
+        for l in workstations[w]['lados_possiveis']:
+            if l not in tasks[t]['execução']:
+                prob += x[t, w, l] == 0
+
+# 8. Restrição de precedência
+for t in tasks:
+    for t_antecessor in tasks[t]['antecessores']:
+        for w in workstations:
+            for l in workstations[w]['lados_possiveis']:
+                prob += pulp.lpSum(x[t_antecessor, w_antecessor, l_antecessor]
+                                   for w_antecessor in workstations
+                                   for l_antecessor in workstations[w_antecessor]['lados_possiveis']
+                                   if w_antecessor < w or (w_antecessor == w and l_antecessor == l)) >= x[t, w, l]
+
+
+
+# Função objetivo: minimizar tempo de ciclo e diferenças em relação à média
+prob += peso_tempo_ciclo * C + peso_balanceamento * pulp.lpSum(d_plus[w] + d_minus[w] for w in workstations)
+
+# Solver
+status = prob.solve()
+
+print("Status:", pulp.LpStatus[status])
+
+# Verificar se a solução foi encontrada
+if status == pulp.LpStatusOptimal:
+    print("\nTempo de ciclo ótimo:", pulp.value(C))
+    print("Tempo médio por operador:", tempo_medio)
+
+    # Organizar e mostrar as alocações
+    print("\nAlocações por Workstation/Lado:")
+
+    # Criar dicionário para armazenar as alocações
+    alocacoes = {}
+
+    # Coletar todas as alocações
+    for w in workstations:
+        for l in workstations[w]['lados_possiveis']:
+            tarefas_alocadas = []
+            tempo_total = 0
+            for t in tasks:
+                if pulp.value(x[t, w, l]) == 1:
+                    tarefas_alocadas.append(t)
+                    tempo_total += tasks[t]['tempo']
+
+            if tarefas_alocadas:
+                alocacoes[(w, l)] = {
+                    'tarefas': tarefas_alocadas,
+                    'tempo_total': tempo_total,
+                    'operador': f"Operador {w}-{l}"
+                }
+
+    # Ordenar as workstations para exibição
+    workstations_ordenadas = sorted(alocacoes.keys(), key=lambda x: (x[0], x[1]))
+
+    # Exibir as alocações
+    for w, l in workstations_ordenadas:
+        info = alocacoes[(w, l)]
+        print(f"\n{info['operador']} (Workstation {w}, Lado {l}):")
+        print(f"Tempo total: {info['tempo_total']:.2f} (Diferença: {info['tempo_total'] - tempo_medio:.2f})")
+        print("Tarefas alocadas:")
+        for t in info['tarefas']:
+            print(f"  Tarefa {t}: Tempo = {tasks[t]['tempo']:.2f}, Antecessores = {tasks[t]['antecessores']}")
+
+    # Estatísticas gerais
+    tempos = [info['tempo_total'] for info in alocacoes.values()]
+    print("\nEstatísticas:")
+    print(f"Número de operadores utilizados: {len(alocacoes)}")
+    print(f"Tempo máximo: {max(tempos):.2f}")
+    print(f"Tempo mínimo: {min(tempos):.2f}")
+    print(f"Tempo médio: {sum(tempos) / len(tempos):.2f}")
+    print(f"Desbalanceamento (diferença média): {sum(abs(t - tempo_medio) for t in tempos) / len(tempos):.2f}")
+    print(f"Eficiência: {(sum(tasks[t]['tempo'] for t in tasks) / (len(alocacoes) * tempo_ciclo)) * 100:.2f}%")
+else:
+    print("Não foi encontrada uma solução ótima.")
