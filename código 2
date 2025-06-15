@@ -1,0 +1,171 @@
+#Código 2
+# Minimização do número de operadores dado tempo de ciclo desejado
+
+import pulp
+
+tasks = {
+    0: {'tempo': 3.04, 'execução': [1], 'restricao_ws': [0], 'antecessores': []},
+    1: {'tempo': 10.45, 'execução': [1], 'restricao_ws': [], 'antecessores': [0]},
+    2: {'tempo': 6.38, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [1]},
+    3: {'tempo': 11.5, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [2]},
+    4: {'tempo': 11.5, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [3]},
+    5: {'tempo': 13.68, 'execução': [1], 'restricao_ws': [], 'antecessores': [4]},
+    6: {'tempo': 7.98, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [5]},
+    7: {'tempo': 7.79, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [6]},
+    8: {'tempo': 4.0, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [7]},
+    9: {'tempo': 20.85, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [8]},
+    10: {'tempo': 15.01, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [9]},
+    11: {'tempo': 14.44, 'execução': [1], 'restricao_ws': [], 'antecessores': [10]},
+    12: {'tempo': 14.63, 'execução': [1], 'restricao_ws': [], 'antecessores': [11]},
+    13: {'tempo': 15.96, 'execução': [1], 'restricao_ws': [], 'antecessores': [12]},
+    14: {'tempo': 11.7, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [13]},
+    15: {'tempo': 3.42, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [13]},
+    16: {'tempo': 6.46, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [14,15]},
+    17: {'tempo': 8.93, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [16]},
+    18: {'tempo': 8.93, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [17]},
+    19: {'tempo': 9.12, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [18]},
+    20: {'tempo': 4.56, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [19]},
+    21: {'tempo': 15.6, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [20]},
+    22: {'tempo': 2.28, 'execução': [1], 'restricao_ws': [], 'antecessores': [21]},
+    23: {'tempo': 7.41, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [21]},
+    24: {'tempo': 6.27, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [22,23]},
+    25: {'tempo': 11.78, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [24]},
+    26: {'tempo': 9.42, 'execução': [1], 'restricao_ws': [], 'antecessores': [25]},
+    27: {'tempo': 15.96, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [26]},
+    28: {'tempo': 15.96, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [27]},
+    29: {'tempo': 9.5, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [28]},
+    30: {'tempo': 12.16, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [29]},
+    31: {'tempo': 12.16, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [30]},
+    32: {'tempo': 19.38, 'execução': [1], 'restricao_ws': [], 'antecessores': [30]},
+    33: {'tempo': 11.97, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [31,32]},
+    34: {'tempo': 11.97, 'execução': [1, 2], 'restricao_ws': [], 'antecessores': [33]},
+    35: {'tempo': 11.21, 'execução': [1], 'restricao_ws': [], 'antecessores': [34]},
+    36: {'tempo': 20.24, 'execução': [1,2], 'restricao_ws': [], 'antecessores': [35]},
+    37: {'tempo': 15.24, 'execução': [1,2], 'restricao_ws': [], 'antecessores': [36]},
+    38: {'tempo': 13.24, 'execução': [2], 'restricao_ws': [], 'antecessores': [37]},
+    39: {'tempo': 8.24, 'execução': [1,2], 'restricao_ws': [11], 'antecessores': [38]},
+    40: {'tempo': 5.24, 'execução': [1], 'restricao_ws': [12], 'antecessores': [39]},
+}
+
+# Workstations
+workstations = {
+    0: {'lados_possiveis': [1]},
+    1: {'lados_possiveis': [1]},
+    2: {'lados_possiveis': [1, 2]},
+    3: {'lados_possiveis': [1, 2]},
+    4: {'lados_possiveis': [1]},
+    5: {'lados_possiveis': [1]},
+    6: {'lados_possiveis': [1, 2]},
+    7: {'lados_possiveis': [1, 2]},
+    8: {'lados_possiveis': [1, 2]},
+    9: {'lados_possiveis': [2]},
+    10: {'lados_possiveis': [1, 2]},
+    11: {'lados_possiveis': [1, 2]},
+    12: {'lados_possiveis': [1,2]}
+}
+
+# Tempo de ciclo fixo em 30 (como máximo)
+tempo_ciclo = 45
+
+# Criar problema de otimização
+prob = pulp.LpProblem("Minimizar_Operadores_Com_Tempo_Ciclo_Fixo", pulp.LpMinimize)
+
+# Variáveis de decisão
+x = pulp.LpVariable.dicts("x", ((t, w, l) for t in tasks for w in workstations for l in
+                                workstations[w]['lados_possiveis']), 0, 1, pulp.LpBinary)
+y = pulp.LpVariable.dicts("y", ((w, l) for w in workstations for l in workstations[w]['lados_possiveis']), 0, 1,
+                          pulp.LpBinary)
+
+# Função objetivo: minimizar o número total de operadores (workstations/lados usados)
+prob += pulp.lpSum(y[w, l] for w in workstations for l in workstations[w]['lados_possiveis'])
+
+# Restrições
+
+# 1. Cada tarefa deve ser alocada a exatamente uma estação/lado
+for t in tasks:
+    prob += pulp.lpSum(x[t, w, l] for w in workstations for l in workstations[w]['lados_possiveis']) == 1
+
+# 2. Tempo de cada workstation/lado não pode exceder o tempo de ciclo
+for w in workstations:
+    for l in workstations[w]['lados_possiveis']:
+        prob += pulp.lpSum(tasks[t]['tempo'] * x[t, w, l] for t in tasks) <= tempo_ciclo
+
+# 3. Se uma tarefa for alocada a (w, l), então y[w, l] deve ser 1
+for w in workstations:
+    for l in workstations[w]['lados_possiveis']:
+        prob += pulp.lpSum(x[t, w, l] for t in tasks) >= y[w, l]
+
+# 4. Restrições de workstations específicas para tarefas
+for t in tasks:
+    if tasks[t]['restricao_ws']:
+        prob += pulp.lpSum(
+            x[t, w, l] for w in tasks[t]['restricao_ws'] for l in workstations[w]['lados_possiveis']) == 1
+
+# 5. Restrições de execução (lado) para tarefas
+for t in tasks:
+    for w in workstations:
+        for l in workstations[w]['lados_possiveis']:
+            if l not in tasks[t]['execução']:
+                prob += x[t, w, l] == 0
+
+# 6. Restrição de precedência
+for t in tasks:
+    for t_antecessor in tasks[t]['antecessores']:
+        for w in workstations:
+            for l in workstations[w]['lados_possiveis']:
+                prob += pulp.lpSum(x[t_antecessor, w_antecessor, l_antecessor]
+                                   for w_antecessor in workstations
+                                   for l_antecessor in workstations[w_antecessor]['lados_possiveis']
+                                   if w_antecessor < w or (w_antecessor == w and l_antecessor == l)) >= x[t, w, l]
+
+# Resolver o problema
+solver = pulp.GUROBI_CMD()
+status = prob.solve(solver)
+print("Status:", pulp.LpStatus[status])
+
+# Verificar e mostrar resultados
+if status == pulp.LpStatusOptimal:
+    print("\nNúmero mínimo de operadores encontrado:", pulp.value(prob.objective))
+    print(f"Tempo de ciclo fixado em: {tempo_ciclo}")
+
+    # Organizar e mostrar as alocações
+    print("\nAlocações por Workstation/Lado:")
+
+    alocacoes = {}
+    for w in workstations:
+        for l in workstations[w]['lados_possiveis']:
+            tarefas_alocadas = []
+            tempo_total = 0
+            for t in tasks:
+                if pulp.value(x[t, w, l]) == 1:
+                    tarefas_alocadas.append(t)
+                    tempo_total += tasks[t]['tempo']
+
+            if tarefas_alocadas:
+                alocacoes[(w, l)] = {
+                    'tarefas': tarefas_alocadas,
+                    'tempo_total': tempo_total,
+                    'operador': f"Operador {w}-{l}"
+                }
+
+    # Ordenar e exibir
+    workstations_ordenadas = sorted(alocacoes.keys(), key=lambda x: (x[0], x[1]))
+
+    for w, l in workstations_ordenadas:
+        info = alocacoes[(w, l)]
+        print(f"\n{info['operador']} (Workstation {w}, Lado {l}):")
+        print(f"Tempo total: {info['tempo_total']:.2f}")
+        print("Tarefas alocadas:")
+        for t in info['tarefas']:
+            print(f"  Tarefa {t}: Tempo = {tasks[t]['tempo']:.2f}, Antecessores = {tasks[t]['antecessores']}")
+
+    # Estatísticas
+    tempos = [info['tempo_total'] for info in alocacoes.values()]
+    print("\nEstatísticas:")
+    print(f"Número de operadores utilizados: {len(alocacoes)}")
+    print(f"Tempo máximo: {max(tempos):.2f}")
+    print(f"Tempo mínimo: {min(tempos):.2f}")
+    print(f"Tempo médio: {sum(tempos) / len(tempos):.2f}")
+    print(f"Eficiência: {(sum(tasks[t]['tempo'] for t in tasks) / (len(alocacoes) * tempo_ciclo)) * 100:.2f}%")
+else:
+    print("Não foi encontrada uma solução ótima com tempo de ciclo ≤ 30.")
